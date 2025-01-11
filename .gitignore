@@ -2,6 +2,9 @@
 credentials.json
 token.pickle
 
+# Data files
+*.csv
+
 # Python
 __pycache__/
 *.py[cod]

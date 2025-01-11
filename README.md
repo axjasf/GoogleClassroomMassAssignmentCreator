@@ -1,15 +1,20 @@
-# Google Classroom Mass Assignment Creator
+# Google Classroom Assignment Management Tools
 
-A Python script to bulk create assignments in Google Classroom from a CSV file. This tool helps teachers quickly set up multiple assignments with scheduled publish dates and due dates.
+A collection of Python scripts to manage Google Classroom assignments, including bulk creation and mass renaming of assignments.
 
-## Features
+## Tools Included
 
-- Bulk create assignments from CSV file
-- Schedule publish dates for assignments
-- Set due dates and points
-- Organize assignments into topics
-- Support for timezone configuration
-- Handles base64-encoded course IDs
+1. **Mass Assignment Creator** (`script.py`)
+   - Bulk create assignments from CSV file
+   - Schedule publish dates for assignments
+   - Set due dates and points
+   - Organize assignments into topics
+
+2. **Assignment Renamer** (`rename_assignments.py`)
+   - Bulk rename assignments to add prefixes
+   - Works with both published and draft assignments
+   - Matches assignments based on CSV file titles
+   - Preserves all other assignment properties
 
 ## Prerequisites
 
@@ -37,17 +42,19 @@ A Python script to bulk create assignments in Google Classroom from a CSV file. 
    - Create OAuth 2.0 credentials (Desktop application)
    - Download and save as `credentials.json` in the project directory
 
-## Configuration
+## Mass Assignment Creator
+
+### Configuration
 
 Edit the constants at the top of `script.py`:
 ```python
 # Configuration Constants
 COURSE_ID = "YOUR_COURSE_ID"  # Your Google Classroom course ID
 TIMEZONE = "America/Los_Angeles"  # Your timezone
-CSV_FILE = "bd_structure.csv"  # Your CSV file name
+CSV_FILE = "assignments.csv"  # Your CSV file name
 ```
 
-## CSV Format
+### CSV Format for Assignment Creation
 
 Create a CSV file with the following columns:
 - `Group`: Topic name for organizing assignments
@@ -63,12 +70,37 @@ Unit 1,Assignment 1,1/28/2025,1/18/2025,100
 Unit 1,Quiz 1,1/29/2025,1/19/2025,50
 ```
 
+## Assignment Renamer
+
+### Configuration
+
+Edit the constants at the top of `rename_assignments.py`:
+```python
+# Configuration
+ENCODED_COURSE_ID = "YOUR_ENCODED_COURSE_ID"  # Your base64 encoded course ID
+PREFIX = "[BD] "  # Prefix to add to assignments
+CSV_FILE = "titles.csv"  # CSV file with assignment titles to match
+```
+
+### CSV Format for Renaming
+
+Create a CSV file with a `Title` column containing the exact titles of assignments to be renamed:
+```csv
+Title
+Assignment 1
+Quiz 1
+```
+
 ## Usage
 
-1. Update the configuration constants in `script.py`
-2. Run the script:
+1. Update the configuration constants in the desired script
+2. Run the appropriate script:
    ```bash
+   # For creating assignments
    python script.py
+   
+   # For renaming assignments
+   python rename_assignments.py
    ```
 
 ## Finding Your Course ID
@@ -85,6 +117,7 @@ Unit 1,Quiz 1,1/29/2025,1/19/2025,50
 - Future-dated assignments are created as drafts
 - All assignments are due at 23:59 on their due date
 - All assignments are scheduled to publish at 00:01 on their scheduled date
+- The renaming script will skip assignments that already have the specified prefix
 
 ## Contributing
 
