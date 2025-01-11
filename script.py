@@ -8,8 +8,12 @@ from datetime import datetime
 import pytz
 import base64
 
+# Configuration Constants
+COURSE_ID = "NzMzOTIwNTcyMzA2"  # Your Google Classroom course ID
+TIMEZONE = "America/Los_Angeles"  # Your timezone
+CSV_FILE = "bd_structure.csv"  # Your CSV file name
 
-# If modifying these scopes, delete the file token.pickle.
+# Google Classroom API Scopes
 SCOPES = [
     'https://www.googleapis.com/auth/classroom.courses',
     'https://www.googleapis.com/auth/classroom.coursework.students',
@@ -212,28 +216,11 @@ def create_assignments(encoded_course_id, csv_file, timezone_str='UTC'):
 
 
 def main():
-    # Get course ID from user input
-    while True:
-        course_id = input("Please enter your Google Classroom course ID: ").strip()
-        if course_id and not course_id.isspace():
-            break
-        print("Course ID cannot be empty. Please try again.")
-    
-    # Get timezone from user or use default
-    default_timezone = 'America/Los_Angeles'  # PST/PDT
-    timezone_input = input(
-        f"Enter your timezone (press Enter for default '{default_timezone}'): "
-    ).strip()
-    TIMEZONE = timezone_input if timezone_input and not timezone_input.isspace() else default_timezone
-    
-    # CSV file path
-    CSV_FILE = 'bd_structure.csv'
-    
-    print(f"\nUsing course ID: {course_id}")
+    print(f"\nUsing course ID: {COURSE_ID}")
     print(f"Using timezone: {TIMEZONE}")
     print("Starting assignment creation...\n")
     
-    create_assignments(course_id, CSV_FILE, TIMEZONE)
+    create_assignments(COURSE_ID, CSV_FILE, TIMEZONE)
 
 
 if __name__ == '__main__':

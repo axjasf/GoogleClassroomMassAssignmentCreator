@@ -21,8 +21,8 @@ A Python script to bulk create assignments in Google Classroom from a CSV file. 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/GoogleClassroomMassAssignmentCreation.git
-   cd GoogleClassroomMassAssignmentCreation
+   git clone https://github.com/axjasf/GoogleClassroomMassAssignmentCreator.git
+   cd GoogleClassroomMassAssignmentCreator
    ```
 
 2. Install requirements:
@@ -36,6 +36,16 @@ A Python script to bulk create assignments in Google Classroom from a CSV file. 
    - Enable Google Classroom API
    - Create OAuth 2.0 credentials (Desktop application)
    - Download and save as `credentials.json` in the project directory
+
+## Configuration
+
+Edit the constants at the top of `script.py`:
+```python
+# Configuration Constants
+COURSE_ID = "YOUR_COURSE_ID"  # Your Google Classroom course ID
+TIMEZONE = "America/Los_Angeles"  # Your timezone
+CSV_FILE = "bd_structure.csv"  # Your CSV file name
+```
 
 ## CSV Format
 
@@ -55,14 +65,11 @@ Unit 1,Quiz 1,1/29/2025,1/19/2025,50
 
 ## Usage
 
-1. Prepare your CSV file following the format above
+1. Update the configuration constants in `script.py`
 2. Run the script:
    ```bash
    python script.py
    ```
-3. When prompted:
-   - Enter your Google Classroom course ID (found in the URL after /c/)
-   - Choose your timezone (default is Pacific Time)
 
 ## Finding Your Course ID
 
