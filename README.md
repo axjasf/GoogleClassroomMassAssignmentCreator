@@ -16,6 +16,12 @@ A collection of Python scripts to manage Google Classroom assignments, including
    - Matches assignments based on CSV file titles
    - Preserves all other assignment properties
 
+3. **Quiz Creator** (`create_quiz.py`)
+   - Bulk create quizzes from CSV file
+   - Link Google Forms to quizzes
+   - Set due dates and points
+   - Organize quizzes into topics
+
 ## Prerequisites
 
 - Python 3.7+
@@ -91,6 +97,34 @@ Assignment 1
 Quiz 1
 ```
 
+## Quiz Creator
+
+### Configuration
+
+Edit the constants at the top of `create_quiz.py`:
+```python
+# Configuration Constants
+ENCODED_COURSE_ID = "YOUR_ENCODED_COURSE_ID"  # Your base64 encoded course ID
+TIMEZONE = "America/Los_Angeles"  # Your timezone
+CSV_FILE = "quiz_structure.csv"  # Your CSV file name
+```
+
+### CSV Format for Quiz Creation
+
+Create a CSV file with the following columns:
+- `Group`: Topic name for organizing quizzes
+- `Title`: Quiz title
+- `Description`: Quiz description/instructions
+- `DueDate`: Due date in M/D/YYYY format
+- `Points`: Maximum points (numeric)
+- `FormURL`: URL of the linked Google Form (optional)
+
+Example:
+```csv
+Group,Title,Description,DueDate,Points,FormURL
+Grammar,Quiz 1,Basic Quiz,1/28/2025,50,https://forms.google.com/your-form-url
+```
+
 ## Usage
 
 1. Update the configuration constants in the desired script
@@ -101,6 +135,9 @@ Quiz 1
    
    # For renaming assignments
    python rename_assignments.py
+   
+   # For creating quizzes
+   python create_quiz.py
    ```
 
 ## Finding Your Course ID
@@ -118,6 +155,8 @@ Quiz 1
 - All assignments are due at 23:59 on their due date
 - All assignments are scheduled to publish at 00:01 on their scheduled date
 - The renaming script will skip assignments that already have the specified prefix
+- Quizzes are created as drafts and need to be reviewed before publishing
+- Google Forms must be created separately before linking them to quizzes
 
 ## Contributing
 
