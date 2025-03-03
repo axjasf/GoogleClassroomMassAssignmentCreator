@@ -22,6 +22,12 @@ A collection of Python scripts to manage Google Classroom assignments, including
    - Set due dates and points
    - Organize quizzes into topics
 
+4. **Quiz Response Grader** (`grade_quiz_responses.py`)
+   - Process Google Form quiz responses
+   - Grade student self-assessments
+   - Record scores in a Google Spreadsheet
+   - Track submission timestamps
+
 ## Prerequisites
 
 - Python 3.7+
@@ -125,6 +131,39 @@ Group,Title,Description,DueDate,Points,FormURL
 Grammar,Quiz 1,Basic Quiz,1/28/2025,50,https://forms.google.com/your-form-url
 ```
 
+## Quiz Response Grader
+
+### Configuration
+
+Edit the constants at the top of `grade_quiz_responses.py`:
+```python
+# Configuration Constants
+FORM_ID = 'YOUR_FORM_ID'  # Your Google Form ID
+SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID'  # Your response spreadsheet ID
+```
+
+### Required Google API Access
+- Forms API (for reading responses)
+- Sheets API (for recording grades)
+
+### Setup Instructions
+1. Create a Google Form for your quiz
+2. Set up a response spreadsheet
+3. Get the Form ID from the form URL
+4. Get the Spreadsheet ID from the spreadsheet URL
+5. Update the configuration constants
+
+### Usage
+```bash
+python grade_quiz_responses.py
+```
+
+The script will:
+1. Check for new form responses
+2. Process the latest response
+3. Calculate the total score
+4. Record the timestamp and score in the spreadsheet
+
 ## Usage
 
 1. Update the configuration constants in the desired script
@@ -138,6 +177,9 @@ Grammar,Quiz 1,Basic Quiz,1/28/2025,50,https://forms.google.com/your-form-url
    
    # For creating quizzes
    python create_quiz.py
+   
+   # For grading quiz responses
+   python grade_quiz_responses.py
    ```
 
 ## Finding Your Course ID
