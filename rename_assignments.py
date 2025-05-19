@@ -5,11 +5,17 @@ import pandas as pd
 import pickle
 import os
 import base64
+import sys
 
 # Configuration
 ENCODED_COURSE_ID = "NzA3ODgxMzE3NTE2"  # Your encoded course ID
 PREFIX = "[BD] "
 CSV_FILE = "bd_structure.csv"  # Your CSV file with assignments
+
+# Test Mode - If enabled, will attempt to rename a specific assignment
+TEST_MODE = True  # Set to True to test permissions
+TEST_COURSE_ID = "682514164930"  # Change to a course ID you want to test with
+TEST_ASSIGNMENT_TITLE = "Kapitel 7.1 - 7.4 - Kongruenz und Dreiecke"  # Change to an existing assignment title
 
 # Google Classroom API Scopes
 SCOPES = [
@@ -56,6 +62,93 @@ def get_credentials():
 
 
 def main():
+    # Test Mode - directly try to rename a specific assignment
+    if TEST_MODE:
+        print("\n*** TEST MODE ENABLED ***")
+        print(f"Attempting to rename assignment: {TEST_ASSIGNMENT_TITLE}")
+        print(f"In course ID: {TEST_COURSE_ID}")
+        
+        # Get credentials and create service
+        creds = get_credentials()
+        service = build('classroom', 'v1', credentials=creds)
+        
+        # Verify course access
+        try:
+            course = service.courses().get(id=TEST_COURSE_ID).execute()
+            print(f"Found course: {course.get('name', 'Unknown')}")
+        except Exception as e:
+            print(f"Error accessing course: {str(e)}")
+            return
+        
+        # Get all coursework
+        try:
+            coursework = service.courses().courseWork().list(
+                courseId=TEST_COURSE_ID,
+                courseWorkStates=['PUBLISHED', 'DRAFT']
+            ).execute()
+            assignments = coursework.get('courseWork', [])
+            print(f"\nFound {len(assignments)} assignments in classroom.")
+        except Exception as e:
+            print(f"Error listing assignments: {str(e)}")
+            return
+        
+        if not assignments:
+            print("No assignments found in the course.")
+            return
+        
+        # Find the specific assignment
+        target_assignment = None
+        for assignment in assignments:
+            if assignment['title'] == TEST_ASSIGNMENT_TITLE:
+                target_assignment = assignment
+                break
+        
+        if not target_assignment:
+            print(f"ERROR: Assignment '{TEST_ASSIGNMENT_TITLE}' not found!")
+            return
+        
+        # Try to rename the assignment
+        try:
+            new_title = f"TEST_PREFIX_{TEST_ASSIGNMENT_TITLE}"
+            update = {
+                'title': new_title
+            }
+            
+            print(f"Attempting to rename: {TEST_ASSIGNMENT_TITLE} -> {new_title}")
+            
+            service.courses().courseWork().patch(
+                courseId=TEST_COURSE_ID,
+                id=target_assignment['id'],
+                updateMask='title',
+                body=update
+            ).execute()
+            
+            print(f"SUCCESS! Renamed: {TEST_ASSIGNMENT_TITLE} -> {new_title}")
+            
+            # Restore the original name
+            print(f"Restoring original name...")
+            update = {
+                'title': TEST_ASSIGNMENT_TITLE
+            }
+            
+            service.courses().courseWork().patch(
+                courseId=TEST_COURSE_ID,
+                id=target_assignment['id'],
+                updateMask='title',
+                body=update
+            ).execute()
+            
+            print(f"Restored original name: {new_title} -> {TEST_ASSIGNMENT_TITLE}")
+            
+            print("\nTEST SUCCESSFUL: This script has permission to modify assignments!")
+            return
+            
+        except Exception as e:
+            print(f"ERROR in test rename: {str(e)}")
+            print("\nTEST FAILED: This script does NOT have permission to modify assignments.")
+            return
+    
+    # Regular mode - process CSV file
     # Read CSV to get list of titles to rename
     df = pd.read_csv(CSV_FILE)
     csv_titles = set(df['Title'].dropna().tolist())

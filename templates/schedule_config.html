@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Configuration</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        h1 { color: #444; }
+        form { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type='date'], input[type='text'] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .course-schedule-item { margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px; }
+        .course-schedule-item h3 { margin-top: 0; color: #555; }
+        .days-checkboxes label { display: inline-block; margin-right: 15px; font-weight: normal; }
+        .days-checkboxes input[type='checkbox'] { margin-right: 5px; }
+        button[type='submit'] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button[type='submit']:hover { background-color: #0056b3; }
+        .flash-messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+        .flash-messages li { padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+        .flash-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .flash-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .nav-links { margin-bottom: 20px; }
+        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .nav-links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}">&laquo; Back to Courses</a>
+    </div>
+    <h1>Configure School and Class Schedule</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash-{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <div>
+            <label for="school_year_start">School Year Start Date:</label>
+            <input type="date" id="school_year_start" name="school_year_start" value="{{ config.school_year_start if config else '' }}" required>
+        </div>
+        <div>
+            <label for="school_year_end">School Year End Date:</label>
+            <input type="date" id="school_year_end" name="school_year_end" value="{{ config.school_year_end if config else '' }}" required>
+        </div>
+
+        <h2>Class Schedules</h2>
+        {% if courses %}
+            {% for course in courses %}
+                <div class="course-schedule-item">
+                    <h3>{{ course.name }} <small>(ID: {{ course.id }})</small></h3>
+                    <div class="days-checkboxes">
+                        <p>Select days this class occurs:</p>
+                        {% set course_config = config.course_schedules | selectattr('course_id', 'equalto', course.id) | first %}
+                        {% for day in days_of_week %}
+                            <label>
+                                <input type="checkbox" name="course_days_{{ course.id }}" value="{{ day }}"
+                                       {% if course_config and day in course_config.days %}checked{% endif %}>
+                                {{ day }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No courses found. Please ensure Google Classroom is accessible.</p>
+        {% endif %}
+
+        <div>
+            <button type="submit">Save Schedule Configuration</button>
+        </div>
+    </form>
+
+</body>
+</html> 

@@ -10,7 +10,7 @@ import pytz
 
 
 # Configuration Constants
-ENCODED_COURSE_ID = "YOUR_ENCODED_COURSE_ID"  # Your Google Classroom course ID
+ENCODED_COURSE_ID = "682514164930"  # Math course
 TIMEZONE = "America/Los_Angeles"  # Your timezone
 CSV_FILE = "quiz_structure.csv"  # Your CSV file name
 

@@ -1,0 +1,15 @@
+{
+    "school_year_start": "2025-01-01",
+    "school_year_end": "2025-12-31",
+    "course_schedules": [
+        {
+            "course_id": "709688468312",
+            "course_name": "Biology",
+            "days": [
+                "Monday",
+                "Wednesday",
+                "Friday"
+            ]
+        }
+    ]
+}

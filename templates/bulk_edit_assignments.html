@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Edit Assignments - {{ course_name }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        h1 { color: #444; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th { background-color: #e9e9e9; }
+        input[type='text'], input[type='date'], input[type='number'] {
+            width: 95%; /* Allow some padding */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type='number'] { width: 100px; }
+        button[type='submit'] {
+            background-color: #28a745; /* Green */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+        }
+        button[type='submit']:hover { background-color: #218838; }
+        .flash-messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+        .flash-messages li { padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+        .flash-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .flash-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .nav-links { margin-bottom: 20px; }
+        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .nav-links a:hover { text-decoration: underline; }
+        .no-assignments { font-style: italic; color: #777; margin-top: 20px;}
+    </style>
+</head>
+<body>
+    <div class="nav-links">
+        <a href="{{ url_for('view_course', course_id=course_id) }}">&laquo; Back to Assignments for {{ course_name }}</a>
+    </div>
+
+    <h1>Bulk Edit Assignments for: {{ course_name }}</h1>
+    <p><small>Course ID: {{ course_id }}</small></p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash-{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    {% if assignments %}
+    <form method="POST">
+        <div style="background-color: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+            <h3>Apply Prefixes (Optional)</h3>
+            <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                <div style="flex-grow: 1;">
+                    <label for="prefix1" style="display: block; margin-bottom: 5px; font-weight: normal;">Prefix 1:</label>
+                    <input type="text" id="prefix1" name="prefix1" placeholder="e.g. [Unit 1] " style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div style="flex-grow: 1;">
+                    <label for="prefix2" style="display: block; margin-bottom: 5px; font-weight: normal;">Prefix 2:</label>
+                    <input type="text" id="prefix2" name="prefix2" placeholder="e.g. [Topic A] " style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+            </div>
+            <small>Prefixes will be prepended to titles if not already present. Enter them exactly as you want them to appear (e.g., including brackets and spaces).</small>
+            <button type="button" id="apply_prefixes_btn" style="margin-top: 10px; padding: 8px 12px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply/Preview Prefixes to Selected</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="select_all_assignments" title="Select/Deselect All"></th>
+                    <th>Title</th>
+                    <th>Due Date (YYYY-MM-DD)</th>
+                    <th>Max Points</th>
+                    <!-- Add other fields as needed, e.g., Description, Due Time -->
+                    <!-- Note: Description might be too large for a simple table cell input -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for assignment in assignments %}
+                <tr>
+                    <td><input type="checkbox" name="selected_assignments" value="{{ assignment.id }}" class="assignment-checkbox"></td>
+                    <td>
+                        <input type="hidden" name="assignment_id_{{ loop.index0 }}" value="{{ assignment.id }}">
+                        <input type="text" id="title_{{ assignment.id }}" name="title_{{ assignment.id }}" value="{{ assignment.title }}" style="width: 300px;">
+                    </td>
+                    <td>
+                        <input type="date" name="due_date_{{ assignment.id }}" 
+                               value="{{ '%s-%02d-%02d' % (assignment.dueDate.year, assignment.dueDate.month, assignment.dueDate.day) if assignment.dueDate else '' }}">
+                    </td>
+                    <td>
+                        <input type="number" name="max_points_{{ assignment.id }}" 
+                               value="{{ assignment.maxPoints if assignment.maxPoints is not none else '' }}" min="0">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Save All Changes</button>
+    </form>
+    {% else %}
+        <p class="no-assignments">No assignments found for this course to bulk edit.</p>
+    {% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('select_all_assignments');
+        const assignmentCheckboxes = document.querySelectorAll('.assignment-checkbox');
+        const applyPrefixesBtn = document.getElementById('apply_prefixes_btn');
+        const prefix1Input = document.getElementById('prefix1');
+        const prefix2Input = document.getElementById('prefix2');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                assignmentCheckboxes.forEach(function(checkbox) {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            });
+        }
+
+        if (applyPrefixesBtn) {
+            applyPrefixesBtn.addEventListener('click', function() {
+                const prefix1 = prefix1Input.value.trim();
+                const prefix2 = prefix2Input.value.trim();
+                let titlesChanged = 0;
+
+                assignmentCheckboxes.forEach(function(checkbox) {
+                    if (checkbox.checked) {
+                        const assignmentId = checkbox.value;
+                        const titleInput = document.getElementById('title_' + assignmentId);
+                        if (titleInput) {
+                            let currentTitle = titleInput.value;
+                            let newTitle = currentTitle;
+
+                            // Apply Prefix 2 first (inner)
+                            if (prefix2 && !newTitle.startsWith(prefix2)) {
+                                newTitle = prefix2 + newTitle;
+                            }
+                            // Apply Prefix 1 (outer)
+                            if (prefix1 && !newTitle.startsWith(prefix1)) {
+                                newTitle = prefix1 + newTitle;
+                            }
+
+                            if (newTitle !== currentTitle) {
+                                titleInput.value = newTitle;
+                                titlesChanged++;
+                            }
+                        }
+                    }
+                });
+                if (titlesChanged > 0) {
+                    alert(titlesChanged + ' title(s) updated with prefixes in the form. Review and click "Save All Changes" to commit.');
+                } else {
+                    alert('No titles were updated. Ensure assignments are selected and prefixes are new.');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html> 
